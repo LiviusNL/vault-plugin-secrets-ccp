@@ -15,30 +15,30 @@ type clientConfig struct {
 	// The hostname of CCP Web Service host.
 	// This should be a hostname with an optipnal port number.
 	// Using the format: hostname[:port]
-	Hostname string `json:hostname`
+	Host string `json:"host" mapstructure:"host"`
 	// The ID of the application performaing the password request
-	ApplicationID string `json:application_id`
+	ApplicationID string `json:"application_id" mapstructure:"application_id"`
 	// The number of seconds that the Central Credential Provider
 	// will try to retrieve the password. The timeout is calculated
 	// when the request is sent from the web service to the Vault
 	// and returned back to the web service.
 	// If zero the default connection timeout will be used.
-	ConnectionTimeout int `json:connection_timeout`
+	ConnectionTimeout int `json:"connection_timeout" mapstructure:"connection_timeout"`
 	// Whether or not an error will be returned, if this web service
 	// is called when a password change process is underway.
 	// To fail a request Aduring a password change, set this value to true
-	FailRequestOnPasswordChange bool `json:fail_request_on_password_change`
+	FailRequestOnPasswordChange bool `json:"fail_request_on_password_change" mapstructure:"fail_request_on_password_change"`
 	// ClientCert it the PEM encoded Client Side Certificate used to
 	// authenticate against the CCP Web Service
-	ClientCert []byte `json:client_cert`
+	ClientCert []byte `json:"client_cert" mapstructure:"client_cert"`
 	// ClientCertKey is the PEM encoded Client Side Certificate key used
 	// to authenticate against the CCP Web Service
-	ClientKey []byte `json:client_cert_key`
+	ClientKey []byte `json:"client_cert_key" mapstructure:"client_key"`
 	// SkipTLSVerify disbles or enables service certificate Validation
-	SkipTLSVerify bool `json:skip_tls_verify`
+	SkipTLSVerify bool `json:"skip_tls_verify" mapstructure:"skip_tls_verify"`
 	// RootCAs is a PEM encoded certificate or bundle to verify the
 	// CCP Web Service Server Certificate
-	RootCA []byte `json:root_ca`
+	RootCA []byte `json:"root_ca" mapstructure:"root_ca"`
 }
 
 // Create a new CCP Client
@@ -56,7 +56,7 @@ func createClient(c *clientConfig) (*ccp.Client, error) {
 	}
 	var rootCAs *x509.CertPool
 	if len(c.RootCA) != 0 {
-		rootCAs := x509.NewCertPool()
+		rootCAs = x509.NewCertPool()
 		ok := rootCAs.AppendCertsFromPEM(c.RootCA)
 		if !ok {
 			return nil, errors.New("unable to parse the certificate(s) in root_ca")
@@ -64,11 +64,11 @@ func createClient(c *clientConfig) (*ccp.Client, error) {
 	}
 
 	client, err := ccp.NewClient(&ccp.Config{
-		Hostname:                    c.Hostname,
+		Host:                        c.Host,
 		ApplicationID:               c.ApplicationID,
 		ConnectionTimeout:           c.ConnectionTimeout,
 		FailRequestOnPasswordChange: c.FailRequestOnPasswordChange,
-		Certificate:                 &cert,
+		ClientCertificate:           &cert,
 		SkipTLSVerify:               c.SkipTLSVerify,
 		RootCAs:                     rootCAs,
 	})

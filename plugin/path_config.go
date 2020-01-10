@@ -5,6 +5,7 @@ import (
 
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
+	"github.com/mitchellh/mapstructure"
 )
 
 // pathConfig returns the path configuration for CRUD operations on the backend
@@ -79,7 +80,7 @@ func (b *backend) pathConfigRead(ctx context.Context, req *logical.Request, data
 
 	resp := &logical.Response{
 		Data: map[string]interface{}{
-			"host":                            config.Hostname,
+			"host":                            config.Host,
 			"application_id":                  config.ApplicationID,
 			"connection_timeout":              config.ConnectionTimeout,
 			"fail_request_on_password_change": config.FailRequestOnPasswordChange,
@@ -106,18 +107,12 @@ func (b *backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 		return logical.ErrorResponse("connection_timeout must be positive"), nil
 	}
 
-	config := &clientConfig{
-		Hostname:                    host,
-		ApplicationID:               applicationID,
-		ConnectionTimeout:           connectionTimeout,
-		FailRequestOnPasswordChange: data.Get("fail_request_on_password_change").(bool),
-		ClientCert:                  []byte(data.Get("client_cert").(string)),
-		ClientKey:                   []byte(data.Get("client_key").(string)),
-		SkipTLSVerify:               data.Get("skip_tls_verify").(bool),
-		RootCA:                      []byte(data.Get("root_ca").(string)),
+	var config clientConfig
+	if err := mapstructure.Decode(data.Raw, &config); err != nil {
+		return nil, err
 	}
 
-	client, err := createClient(config)
+	client, err := createClient(&config)
 	if err != nil {
 		return logical.ErrorResponse("unable to create the CCP client: %v", err), nil
 	}

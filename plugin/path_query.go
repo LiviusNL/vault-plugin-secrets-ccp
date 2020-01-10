@@ -94,17 +94,27 @@ func (b *backend) pathQueryRead(ctx context.Context, req *logical.Request, data 
 		}
 	}
 
-	r, err := client.Query(q, qf)
+	r, logicalError, err := client.Query(q, qf)
 	if err != nil {
 		return nil, err
+	}
+	if len(logicalError) != 0 {
+		return logical.ErrorResponse(logicalError), nil
 	}
 
 	resp := &logical.Response{
 		Data: map[string]interface{}{
 			"content":                    r.Content,
+			"creation_method":            r.CreationMethod,
+			"safe":                       r.Safe,
+			"folder":                     r.Folder,
 			"username":                   r.UserName,
+			"logon_domain":               r.LogonDomain,
+			"name":                       r.Name,
 			"address":                    r.Address,
+			"device_type":                r.DeviceType,
 			"database":                   r.Database,
+			"policy_id":                  r.PolicyID,
 			"password_change_in_process": r.PasswordChangeInProcess,
 		},
 	}
