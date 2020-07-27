@@ -34,8 +34,10 @@ type clientConfig struct {
 	// ClientCertKey is the PEM encoded Client Side Certificate key used
 	// to authenticate against the CCP Web Service
 	ClientKey []byte `json:"client_cert_key" mapstructure:"client_key"`
-	// SkipTLSVerify disbles or enables service certificate Validation
+	// SkipTLSVerify disables or enables service certificate Validation
 	SkipTLSVerify bool `json:"skip_tls_verify" mapstructure:"skip_tls_verify"`
+	// Enable TLS Renegotiation
+	EnableTLSRenegotiation bool `json:"enable_tls_renegotiation" mapstructure:"enable_tls_renegotiation"`
 	// RootCAs is a PEM encoded certificate or bundle to verify the
 	// CCP Web Service Server Certificate
 	RootCA []byte `json:"root_ca" mapstructure:"root_ca"`

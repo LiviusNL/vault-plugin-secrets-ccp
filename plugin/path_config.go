@@ -47,6 +47,11 @@ func pathConfig(b *backend) *framework.Path {
 				Description: `Skip the verification of the CCP Web Service server certificate`,
 				Default:     false,
 			},
+			"enable_tls_renegotiation": {
+				Type:        framework.TypeBool,
+				Description: `Enable TLS renegotiation`,
+				Default:     false,
+			},
 			"root_ca": {
 				Type:        framework.TypeString,
 				Description: `Root CA is a PEM encoded certificate or bundle to verify the CCP Web Service Server Certificate`,
@@ -86,6 +91,7 @@ func (b *backend) pathConfigRead(ctx context.Context, req *logical.Request, data
 			"fail_request_on_password_change": config.FailRequestOnPasswordChange,
 			"client_cert":                     string(config.ClientCert),
 			"skip_tls_verify":                 config.SkipTLSVerify,
+			"enable_tls_renegotiation":        config.EnableTLSRenegotiation,
 			"root_ca":                         string(config.RootCA),
 		},
 	}
@@ -108,7 +114,7 @@ func (b *backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 	}
 
 	var config clientConfig
-	if err := mapstructure.Decode(data.Raw, &config); err != nil {
+	if err := mapstructure.WeakDecode(data.Raw, &config); err != nil {
 		return nil, err
 	}
 
