@@ -72,6 +72,7 @@ func createClient(c *clientConfig) (*ccp.Client, error) {
 		FailRequestOnPasswordChange: c.FailRequestOnPasswordChange,
 		ClientCertificate:           &cert,
 		SkipTLSVerify:               c.SkipTLSVerify,
+		EnableTLSRenegotiation:      c.EnableTLSRenegotiation,
 		RootCAs:                     rootCAs,
 	})
 	if err != nil {
