@@ -102,27 +102,19 @@ func (b *backend) pathQueryRead(ctx context.Context, req *logical.Request, data 
 		return logical.ErrorResponse(logicalError), nil
 	}
 
+	mr, err := r.MapSnakeCase()
+	if err != nil {
+		return nil, err
+	}
+
 	resp := &logical.Response{
-		Data: map[string]interface{}{
-			"content":                    r.Content,
-			"creation_method":            r.CreationMethod,
-			"safe":                       r.Safe,
-			"folder":                     r.Folder,
-			"username":                   r.UserName,
-			"logon_domain":               r.LogonDomain,
-			"name":                       r.Name,
-			"address":                    r.Address,
-			"device_type":                r.DeviceType,
-			"database":                   r.Database,
-			"policy_id":                  r.PolicyID,
-			"password_change_in_process": r.PasswordChangeInProcess,
-		},
+		Data: mr,
 	}
 	return resp, nil
 }
 
 const queryHelpSyn = `
-Query the CuberArk Credetials Provider and retrieve a secret from the EPV
+Query the CyberArk Credetials Provider and retrieve a secret from the EPV
 `
 const queryHelpDesc = `
 This endpoint allows you to query via the CyberArk Credentials Provider

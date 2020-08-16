@@ -61,27 +61,19 @@ func (b *backend) pathObjectRead(ctx context.Context, req *logical.Request, data
 		return logical.ErrorResponse(logicalError), nil
 	}
 
+	mr, err := r.MapSnakeCase()
+	if err != nil {
+		return nil, err
+	}
+
 	resp := &logical.Response{
-		Data: map[string]interface{}{
-			"content":                    r.Content,
-			"creation_method":            r.CreationMethod,
-			"safe":                       r.Safe,
-			"folder":                     r.Folder,
-			"username":                   r.UserName,
-			"logon_domain":               r.LogonDomain,
-			"name":                       r.Name,
-			"address":                    r.Address,
-			"device_type":                r.DeviceType,
-			"database":                   r.Database,
-			"policy_id":                  r.PolicyID,
-			"password_change_in_process": r.PasswordChangeInProcess,
-		},
+		Data: mr,
 	}
 	return resp, nil
 }
 
 const objectHelpSyn = `
-Request a secret from the CuberArk Credetials Provider by Safe/Folder/Object
+Request a secret from the CyberArk Credetials Provider by Safe/Folder/Object
 `
 const objectHelpDesc = `
 This endpoint allows you to request via the CyberArk Credentials Provider
