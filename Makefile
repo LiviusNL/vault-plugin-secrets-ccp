@@ -1,9 +1,8 @@
 TOOL?=vault-plugin-secrets-ccp
-TEST?=$$(go list ./... | grep -v /vendor/ | grep -v teamcity)
+TEST?=$$(go list ./... | grep -v /vendor/)
 VETARGS?=-asmdecl -atomic -bool -buildtags -copylocks -methods -nilfunc -printf -rangeloops -shift -structtags -unsafeptr
 EXTERNAL_TOOLS=\
-	github.com/mitchellh/gox \
-	github.com/golang/dep/cmd/dep
+	github.com/mitchellh/gox@latest
 BUILD_TAGS?=${TOOL}
 GOFMT_FILES?=$$(find . -name '*.go' | grep -v vendor)
 
@@ -18,13 +17,9 @@ default: dev
 dev: fmtcheck generate
 	@CGO_ENABLED=0 BUILD_TAGS='$(BUILD_TAGS)' VAULT_DEV_BUILD=1 sh -c "'$(CURDIR)/scripts/build.sh'"
 
-# testshort runs the quick unit tests and vets the code
-test: fmtcheck generate
-	CGO_ENABLED=0 VAULT_TOKEN= VAULT_ACC= go test -v -short -tags='$(BUILD_TAGS)' $(TEST) $(TESTARGS) -count=1 -timeout=20m -parallel=4
-
 # test runs the unit tests and vets the code
-testrace: fmtcheck generate
-	CGO_ENABLED=1 VAULT_TOKEN= VAULT_ACC= go test -race -v -tags='$(BUILD_TAGS)' $(TEST) $(TESTARGS) -count=1 -timeout=20m -parallel=4
+test: fmtcheck generate
+	CGO_ENABLED=0 VAULT_TOKEN= VAULT_ACC= go test -tags='$(BUILD_TAGS)' $(TEST) $(TESTARGS) -count=1 -timeout=20m -parallel=4
 
 testcompile: fmtcheck generate
 	@for pkg in $(TEST) ; do \
@@ -40,7 +35,7 @@ generate:
 bootstrap:
 	@for tool in  $(EXTERNAL_TOOLS) ; do \
 		echo "Installing/Updating $$tool" ; \
-		go get -u $$tool; \
+		go install $$tool; \
 	done
 
 fmtcheck:
@@ -50,6 +45,6 @@ fmt:
 	gofmt -w $(GOFMT_FILES)
 
 proto:
-	protoc *.proto --go_out=plugins=grpc:.
+	protoc --go_out=. --go_opt=paths=source_relative *.proto
 
 .PHONY: bin default generate test vet bootstrap fmt fmtcheck
