@@ -32,8 +32,10 @@ func pathObject(b *backend) *framework.Path {
 				Description: `The reason for retrieving the password.`,
 			},
 		},
-		Callbacks: map[logical.Operation]framework.OperationFunc{
-			logical.ReadOperation: b.pathObjectRead,
+		Operations: map[logical.Operation]framework.OperationHandler{
+			logical.ReadOperation: &framework.PathOperation{
+				Callback: b.pathObjectRead,
+			},
 		},
 
 		HelpSynopsis:    objectHelpSyn,

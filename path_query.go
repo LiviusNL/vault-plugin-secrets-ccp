@@ -52,8 +52,10 @@ func pathQuery(b *backend) *framework.Path {
 				Description: `Defines the query format, which can optionally use regular expressions.`,
 			},
 		},
-		Callbacks: map[logical.Operation]framework.OperationFunc{
-			logical.ReadOperation: b.pathQueryRead,
+		Operations: map[logical.Operation]framework.OperationHandler{
+			logical.ReadOperation: &framework.PathOperation{
+				Callback: b.pathQueryRead,
+			},
 		},
 
 		HelpSynopsis:    queryHelpSyn,

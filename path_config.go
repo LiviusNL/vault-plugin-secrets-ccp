@@ -12,7 +12,7 @@ import (
 // configuration.
 func pathConfig(b *backend) *framework.Path {
 	return &framework.Path{
-		Pattern: configPath + "$",
+		Pattern: configPath,
 		Fields: map[string]*framework.FieldSchema{
 			"host": {
 				Type:        framework.TypeString,
@@ -57,11 +57,18 @@ func pathConfig(b *backend) *framework.Path {
 				Description: `Root CA is a PEM encoded certificate or bundle to verify the CCP Web Service Server Certificate`,
 			},
 		},
-		Callbacks: map[logical.Operation]framework.OperationFunc{
-			logical.UpdateOperation: b.pathConfigWrite,
-			logical.CreateOperation: b.pathConfigWrite,
-			logical.ReadOperation:   b.pathConfigRead,
+		Operations: map[logical.Operation]framework.OperationHandler{
+			logical.UpdateOperation: &framework.PathOperation{
+				Callback: b.pathConfigWrite,
+			},
+			logical.CreateOperation: &framework.PathOperation{
+				Callback: b.pathConfigWrite,
+			},
+			logical.ReadOperation: &framework.PathOperation{
+				Callback: b.pathConfigRead,
+			},
 		},
+		ExistenceCheck: b.pathConfigExists,
 
 		HelpSynopsis:    confHelpSyn,
 		HelpDescription: confHelpDesc,
@@ -135,6 +142,15 @@ func (b *backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 	b.ResetClient(client)
 
 	return nil, nil
+}
+
+func (b *backend) pathConfigExists(ctx context.Context, req *logical.Request, data *framework.FieldData) (bool, error) {
+	out, err := req.Storage.Get(ctx, req.Path)
+	if err != nil {
+		return false, err
+	}
+
+	return out != nil, nil
 }
 
 const confHelpSyn = `
